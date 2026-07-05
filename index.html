@@ -1,62 +1,1183 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Expense Tracker - Firebase Edition</title>
-<style>
-body{font-family:Arial,sans-serif;background:#f4f6fb;margin:0}
-.container{max-width:420px;margin:40px auto;background:#fff;padding:24px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
-input,button{width:100%;padding:10px;margin:8px 0}
-button{cursor:pointer}
-.note{background:#fff3cd;padding:12px;border-radius:6px}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --success: #4cc9f0;
+            --danger: #f72585;
+            --warning: #f8961e;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --light-gray: #e9ecef;
+        }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+        background-color: #f5f7fb;
+        color: var(--dark);
+        line-height: 1.6;
+    }
+    
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    header {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: white;
+        padding: 1.5rem 0;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .logo i {
+        font-size: 2rem;
+    }
+    
+    nav ul {
+        display: flex;
+        list-style: none;
+        gap: 20px;
+        align-items: center;
+    }
+    
+    nav a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        padding: 5px 10px;
+        border-radius: 4px;
+        transition: background 0.3s;
+    }
+    
+    nav a:hover, nav a.active {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .user-chip {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+    }
+
+    .user-chip img {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+    }
+
+    .user-chip button {
+        background: rgba(255, 255, 255, 0.25);
+        padding: 5px 10px;
+        font-size: 0.85rem;
+    }
+
+    .user-chip button:hover {
+        background: rgba(255, 255, 255, 0.4);
+    }
+    
+    .main-content {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 30px;
+        margin: 30px 0;
+    }
+    
+    @media (max-width: 768px) {
+        .main-content {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .card-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: var(--primary);
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 500;
+    }
+    
+    input, select, textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--light-gray);
+        border-radius: 5px;
+        font-size: 1rem;
+    }
+    
+    button {
+        background: var(--primary);
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 500;
+        transition: background 0.3s;
+    }
+    
+    button:hover {
+        background: var(--secondary);
+    }
+    
+    .btn-danger {
+        background: var(--danger);
+    }
+    
+    .btn-danger:hover {
+        background: #d1145a;
+    }
+    
+    .btn-success {
+        background: var(--success);
+    }
+    
+    .btn-success:hover {
+        background: #3ab0d6;
+    }
+    
+    .expense-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px;
+        border-bottom: 1px solid var(--light-gray);
+        transition: background 0.3s;
+    }
+    
+    .expense-item:hover {
+        background: var(--light-gray);
+    }
+    
+    .expense-info {
+        flex: 1;
+    }
+    
+    .expense-title {
+        font-weight: 600;
+        margin-bottom: 5px;
+    }
+    
+    .expense-meta {
+        display: flex;
+        gap: 15px;
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+    
+    .expense-amount {
+        font-weight: 600;
+        font-size: 1.1rem;
+    }
+    
+    .expense-actions {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .action-btn {
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        color: var(--gray);
+        transition: color 0.3s;
+    }
+    
+    .edit-btn:hover {
+        color: var(--primary);
+    }
+    
+    .delete-btn:hover {
+        color: var(--danger);
+    }
+    
+    .summary-cards {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+    
+    @media (max-width: 768px) {
+        .summary-cards {
+            grid-template-columns: 1fr;
+        }
+    }
+    
+    .summary-card {
+        text-align: center;
+        padding: 15px;
+        border-radius: 8px;
+        color: white;
+    }
+    
+    .total-expenses {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+    
+    .month-expenses {
+        background: linear-gradient(135deg, var(--success), #3ab0d6);
+    }
+    
+    .week-expenses {
+        background: linear-gradient(135deg, var(--warning), #e67e22);
+    }
+    
+    .summary-card h3 {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+        opacity: 0.9;
+    }
+    
+    .summary-card .amount {
+        font-size: 1.8rem;
+        font-weight: 700;
+    }
+    
+    .filters {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .chart-container {
+        height: 250px;
+        margin-top: 20px;
+    }
+    
+    .no-expenses {
+        text-align: center;
+        padding: 30px;
+        color: var(--gray);
+    }
+    
+    .no-expenses i {
+        font-size: 3rem;
+        margin-bottom: 10px;
+        opacity: 0.5;
+    }
+    
+    footer {
+        text-align: center;
+        padding: 20px 0;
+        margin-top: 40px;
+        border-top: 1px solid var(--light-gray);
+        color: var(--gray);
+        font-size: 0.9rem;
+    }
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 90%;
+        max-width: 500px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--light-gray);
+    }
+    
+    .close-modal {
+        background: none;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--gray);
+    }
+
+    /* ---------- Auth screen ---------- */
+    #app-root {
+        display: none;
+    }
+
+    #auth-screen {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        padding: 20px;
+    }
+
+    .auth-card {
+        background: white;
+        width: 100%;
+        max-width: 380px;
+        border-radius: 12px;
+        padding: 32px 28px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .auth-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 20px;
+    }
+
+    .auth-title {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: var(--dark);
+    }
+
+    .auth-error {
+        background: #fdecef;
+        color: var(--danger);
+        padding: 8px 12px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    .auth-btn-primary {
+        width: 100%;
+        margin-top: 5px;
+    }
+
+    .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 18px 0;
+        color: var(--gray);
+        font-size: 0.85rem;
+    }
+
+    .auth-divider::before, .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--light-gray);
+    }
+
+    .google-btn {
+        width: 100%;
+        background: white;
+        color: var(--dark);
+        border: 1px solid var(--light-gray);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        font-weight: 500;
+    }
+
+    .google-btn:hover {
+        background: var(--light-gray);
+    }
+
+    .google-btn img {
+        width: 18px;
+        height: 18px;
+    }
+
+    .auth-toggle {
+        text-align: center;
+        margin-top: 18px;
+        font-size: 0.9rem;
+        color: var(--gray);
+    }
+
+    .auth-toggle a {
+        color: var(--primary);
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .auth-loading {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        font-size: 1.1rem;
+    }
 </style>
+
 </head>
 <body>
+
+<!-- Loading state shown while Firebase determines auth status -->
+<div id="auth-loading" class="auth-loading">
+    <p><i class="fas fa-spinner fa-spin"></i>&nbsp; Loading...</p>
+</div>
+
+<!-- Login / Signup screen -->
+<div id="auth-screen" style="display:none;">
+    <div class="auth-card">
+        <div class="auth-logo">
+            <i class="fas fa-chart-pie"></i>
+            <span>ExpenseTracker</span>
+        </div>
+        <div class="auth-title" id="auth-title">Log in to your account</div>
+
+        <div class="auth-error" id="auth-error"></div>
+
+        <form id="auth-form">
+            <div class="form-group">
+                <label for="auth-email">Email</label>
+                <input type="email" id="auth-email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="auth-password">Password</label>
+                <input type="password" id="auth-password" placeholder="At least 6 characters" minlength="6" required>
+            </div>
+            <button type="submit" class="btn-success auth-btn-primary" id="auth-submit-btn">
+                <i class="fas fa-right-to-bracket"></i> Log In
+            </button>
+        </form>
+
+        <div class="auth-divider">or</div>
+
+        <button type="button" class="google-btn" id="google-signin-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            Continue with Google
+        </button>
+
+        <div class="auth-toggle">
+            <span id="auth-toggle-text">Don't have an account?</span>
+            <a id="auth-toggle-link">Sign up</a>
+        </div>
+    </div>
+</div>
+
+<!-- Main app (hidden until authenticated) -->
+<div id="app-root">
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-chart-pie"></i>
+                    <span>ExpenseTracker</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li><a href="#" class="active">Dashboard</a></li>
+                        <li><a href="#">Reports</a></li>
+                        <li><a href="#">Settings</a></li>
+                        <li>
+                            <div class="user-chip">
+                                <img id="user-avatar" src="" alt="" style="display:none;">
+                                <span id="user-email"></span>
+                                <button id="logout-btn" type="button"><i class="fas fa-right-from-bracket"></i> Log out</button>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </header>
+
 <div class="container">
-<h2>Expense Tracker</h2>
-
-<div id="login">
-<input id="email" type="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button id="signup">Create Account</button>
-<button id="loginBtn">Login</button>
-<button id="google">Continue with Google</button>
+    <div class="summary-cards">
+        <div class="summary-card total-expenses">
+            <h3>Total Expenses</h3>
+            <div class="amount" id="total-amount">$0.00</div>
+        </div>
+        <div class="summary-card month-expenses">
+            <h3>This Month</h3>
+            <div class="amount" id="month-amount">$0.00</div>
+        </div>
+        <div class="summary-card week-expenses">
+            <h3>This Week</h3>
+            <div class="amount" id="week-amount">$0.00</div>
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="left-column">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Add New Expense</h2>
+                </div>
+                <form id="expense-form">
+                    <div class="form-group">
+                        <label for="expense-title">Title</label>
+                        <input type="text" id="expense-title" placeholder="Enter expense title" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-amount">Amount ($)</label>
+                        <input type="number" id="expense-amount" placeholder="0.00" step="0.01" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-category">Category</label>
+                        <select id="expense-category" required>
+                            <option value="">Select a category</option>
+                            <option value="Food">Food</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-date">Date</label>
+                        <input type="date" id="expense-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="expense-description">Description (Optional)</label>
+                        <textarea id="expense-description" rows="3" placeholder="Add any additional details"></textarea>
+                    </div>
+                    <button type="submit" class="btn-success">
+                        <i class="fas fa-plus"></i> Add Expense
+                    </button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Spending by Category</h2>
+                </div>
+                <div class="chart-container">
+                    <canvas id="category-chart"></canvas>
+                </div>
+            </div>
+        </div>
+        
+        <div class="right-column">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">Recent Expenses</h2>
+                    <div class="filters">
+                        <select id="category-filter">
+                            <option value="">All Categories</option>
+                            <option value="Food">Food</option>
+                            <option value="Transportation">Transportation</option>
+                            <option value="Entertainment">Entertainment</option>
+                            <option value="Utilities">Utilities</option>
+                            <option value="Healthcare">Healthcare</option>
+                            <option value="Shopping">Shopping</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <input type="date" id="date-filter">
+                    </div>
+                </div>
+                <div id="expenses-list">
+                    <!-- Expenses will be dynamically added here -->
+                    <div class="no-expenses">
+                        <i class="fas fa-receipt"></i>
+                        <p>No expenses added yet. Start by adding your first expense!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="app" style="display:none">
-<h3>Welcome!</h3>
-<button id="logout">Logout</button>
-<p>Your expense tracker UI goes here.</p>
+<!-- Edit Expense Modal -->
+<div class="modal" id="edit-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Edit Expense</h2>
+            <button class="close-modal">&times;</button>
+        </div>
+        <form id="edit-expense-form">
+            <input type="hidden" id="edit-expense-id">
+            <div class="form-group">
+                <label for="edit-expense-title">Title</label>
+                <input type="text" id="edit-expense-title" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-expense-amount">Amount ($)</label>
+                <input type="number" id="edit-expense-amount" step="0.01" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-expense-category">Category</label>
+                <select id="edit-expense-category" required>
+                    <option value="Food">Food</option>
+                    <option value="Transportation">Transportation</option>
+                    <option value="Entertainment">Entertainment</option>
+                    <option value="Utilities">Utilities</option>
+                    <option value="Healthcare">Healthcare</option>
+                    <option value="Shopping">Shopping</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="edit-expense-date">Date</label>
+                <input type="date" id="edit-expense-date" required>
+            </div>
+            <div class="form-group">
+                <label for="edit-expense-description">Description</label>
+                <textarea id="edit-expense-description" rows="3"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="btn-success">Save Changes</button>
+                <button type="button" class="close-modal">Cancel</button>
+            </div>
+        </form>
+    </div>
 </div>
+
+<footer>
+    <div class="container">
+        <p>ExpenseTracker &copy; 2024 - Track your expenses easily</p>
+    </div>
+</footer>
+</div><!-- /#app-root -->
 
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup,
-createUserWithEmailAndPassword, signInWithEmailAndPassword,
-onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+    // ---------------- Firebase setup ----------------
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signInWithEmailAndPassword,
+        createUserWithEmailAndPassword,
+        signInWithPopup,
+        GoogleAuthProvider,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 
-const firebaseConfig={
-apiKey:"AIzaSyBPgwLiVpdRSZKqPw-IqC1A-uBzPxvLUxY",
-authDomain:"expense-796e1.firebaseapp.com",
-projectId:"expense-796e1",
-storageBucket:"expense-796e1.firebasestorage.app",
-messagingSenderId:"937312084656",
-appId:"1:937312084656:web:f51b1b3c7d32a8b86b9175",
-measurementId:"G-QY1KQL6P3Y"
-};
-const app=initializeApp(firebaseConfig);
-const auth=getAuth(app);
-const provider=new GoogleAuthProvider();
+    const firebaseConfig = {
+        apiKey: "AIzaSyBPgwLiVpdRSZKqPw-IqC1A-uBzPxvLUxY",
+        authDomain: "expense-796e1.firebaseapp.com",
+        projectId: "expense-796e1",
+        storageBucket: "expense-796e1.firebasestorage.app",
+        messagingSenderId: "937312084656",
+        appId: "1:937312084656:web:f51b1b3c7d32a8b86b9175",
+        measurementId: "G-QY1KQL6P3Y"
+    };
 
-signup.onclick=()=>createUserWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
-loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
-google.onclick=()=>signInWithPopup(auth,provider).catch(e=>alert(e.message));
-logout.onclick=()=>signOut(auth);
+    const app = initializeApp(firebaseConfig);
+    let analytics;
+    try { analytics = getAnalytics(app); } catch (e) { /* analytics can fail in some environments, ignore */ }
+    const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
 
-onAuthStateChanged(auth,u=>{
-login.style.display=u?"none":"block";
-app.style.display=u?"block":"none";
-});
+    // ---------------- Auth screen elements ----------------
+    const authLoading = document.getElementById('auth-loading');
+    const authScreen = document.getElementById('auth-screen');
+    const appRoot = document.getElementById('app-root');
+    const authForm = document.getElementById('auth-form');
+    const authEmailInput = document.getElementById('auth-email');
+    const authPasswordInput = document.getElementById('auth-password');
+    const authError = document.getElementById('auth-error');
+    const authTitle = document.getElementById('auth-title');
+    const authSubmitBtn = document.getElementById('auth-submit-btn');
+    const authToggleText = document.getElementById('auth-toggle-text');
+    const authToggleLink = document.getElementById('auth-toggle-link');
+    const googleSigninBtn = document.getElementById('google-signin-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+    const userEmailSpan = document.getElementById('user-email');
+    const userAvatar = document.getElementById('user-avatar');
+
+    let isSignupMode = false;
+    let currentUser = null;
+
+    function showAuthError(message) {
+        authError.textContent = message;
+        authError.style.display = 'block';
+    }
+
+    function clearAuthError() {
+        authError.style.display = 'none';
+        authError.textContent = '';
+    }
+
+    function setSignupMode(signup) {
+        isSignupMode = signup;
+        clearAuthError();
+        if (signup) {
+            authTitle.textContent = 'Create your account';
+            authSubmitBtn.innerHTML = '<i class="fas fa-user-plus"></i> Sign Up';
+            authToggleText.textContent = 'Already have an account?';
+            authToggleLink.textContent = 'Log in';
+        } else {
+            authTitle.textContent = 'Log in to your account';
+            authSubmitBtn.innerHTML = '<i class="fas fa-right-to-bracket"></i> Log In';
+            authToggleText.textContent = "Don't have an account?";
+            authToggleLink.textContent = 'Sign up';
+        }
+    }
+
+    authToggleLink.addEventListener('click', () => setSignupMode(!isSignupMode));
+
+    authForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearAuthError();
+        const email = authEmailInput.value.trim();
+        const password = authPasswordInput.value;
+
+        try {
+            if (isSignupMode) {
+                await createUserWithEmailAndPassword(auth, email, password);
+            } else {
+                await signInWithEmailAndPassword(auth, email, password);
+            }
+        } catch (err) {
+            showAuthError(friendlyAuthError(err));
+        }
+    });
+
+    googleSigninBtn.addEventListener('click', async function () {
+        clearAuthError();
+        try {
+            await signInWithPopup(auth, googleProvider);
+        } catch (err) {
+            showAuthError(friendlyAuthError(err));
+        }
+    });
+
+    logoutBtn.addEventListener('click', async function () {
+        try {
+            await signOut(auth);
+        } catch (err) {
+            console.error('Sign out failed', err);
+        }
+    });
+
+    function friendlyAuthError(err) {
+        const code = err && err.code ? err.code : '';
+        const map = {
+            'auth/invalid-email': 'Please enter a valid email address.',
+            'auth/user-not-found': 'No account found with that email.',
+            'auth/wrong-password': 'Incorrect password. Please try again.',
+            'auth/invalid-credential': 'Incorrect email or password.',
+            'auth/email-already-in-use': 'An account already exists with that email.',
+            'auth/weak-password': 'Password should be at least 6 characters.',
+            'auth/popup-closed-by-user': 'Google sign-in was cancelled.',
+            'auth/too-many-requests': 'Too many attempts. Please try again later.'
+        };
+        return map[code] || (err && err.message) || 'Something went wrong. Please try again.';
+    }
+
+    // React to auth state changes
+    onAuthStateChanged(auth, function (user) {
+        authLoading.style.display = 'none';
+        if (user) {
+            currentUser = user;
+            authScreen.style.display = 'none';
+            appRoot.style.display = 'block';
+
+            userEmailSpan.textContent = user.email || user.displayName || 'Account';
+            if (user.photoURL) {
+                userAvatar.src = user.photoURL;
+                userAvatar.style.display = 'inline-block';
+            } else {
+                userAvatar.style.display = 'none';
+            }
+
+            initExpenseApp(user.uid);
+        } else {
+            currentUser = null;
+            appRoot.style.display = 'none';
+            authScreen.style.display = 'flex';
+            authForm.reset();
+        }
+    });
+
+    // ---------------- Expense Tracker app (scoped per logged-in user) ----------------
+    let appInitialized = false;
+    let currentUid = null;
+
+    // DOM Elements (queried once; they exist in the markup regardless of auth state)
+    const expenseForm = document.getElementById('expense-form');
+    const expensesList = document.getElementById('expenses-list');
+    const editModal = document.getElementById('edit-modal');
+    const editExpenseForm = document.getElementById('edit-expense-form');
+    const closeModalButtons = document.querySelectorAll('.close-modal');
+    const categoryFilter = document.getElementById('category-filter');
+    const dateFilter = document.getElementById('date-filter');
+
+    const totalAmountElement = document.getElementById('total-amount');
+    const monthAmountElement = document.getElementById('month-amount');
+    const weekAmountElement = document.getElementById('week-amount');
+
+    let categoryChart;
+
+    function initExpenseApp(uid) {
+        currentUid = uid;
+
+        // Set today's date as default for the date input
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('expense-date').value = today;
+
+        // Load this user's expenses
+        loadExpenses();
+
+        // Initialize chart once; otherwise just refresh its data for the new user
+        if (!appInitialized) {
+            initChart();
+            appInitialized = true;
+        } else {
+            updateChart();
+        }
+
+        updateSummary();
+    }
+
+    // Expense form submission
+    expenseForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const title = document.getElementById('expense-title').value;
+        const amount = parseFloat(document.getElementById('expense-amount').value);
+        const category = document.getElementById('expense-category').value;
+        const date = document.getElementById('expense-date').value;
+        const description = document.getElementById('expense-description').value;
+
+        const expense = {
+            id: Date.now(),
+            title,
+            amount,
+            category,
+            date,
+            description
+        };
+
+        addExpense(expense);
+
+        expenseForm.reset();
+        document.getElementById('expense-date').value = new Date().toISOString().split('T')[0];
+    });
+
+    // Edit expense form submission
+    editExpenseForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const id = parseInt(document.getElementById('edit-expense-id').value);
+        const title = document.getElementById('edit-expense-title').value;
+        const amount = parseFloat(document.getElementById('edit-expense-amount').value);
+        const category = document.getElementById('edit-expense-category').value;
+        const date = document.getElementById('edit-expense-date').value;
+        const description = document.getElementById('edit-expense-description').value;
+
+        updateExpense(id, { title, amount, category, date, description });
+
+        closeModal();
+    });
+
+    closeModalButtons.forEach(button => {
+        button.addEventListener('click', closeModal);
+    });
+
+    categoryFilter.addEventListener('change', filterExpenses);
+    dateFilter.addEventListener('change', filterExpenses);
+
+    function addExpense(expense) {
+        const expenses = getExpensesFromStorage();
+        expenses.push(expense);
+        saveExpensesToStorage(expenses);
+        displayExpenses(expenses);
+        updateSummary();
+        updateChart();
+    }
+
+    function updateExpense(id, updatedExpense) {
+        const expenses = getExpensesFromStorage();
+        const index = expenses.findIndex(expense => expense.id === id);
+
+        if (index !== -1) {
+            expenses[index] = { ...expenses[index], ...updatedExpense };
+            saveExpensesToStorage(expenses);
+            displayExpenses(expenses);
+            updateSummary();
+            updateChart();
+        }
+    }
+
+    function deleteExpense(id) {
+        if (confirm('Are you sure you want to delete this expense?')) {
+            const expenses = getExpensesFromStorage();
+            const filteredExpenses = expenses.filter(expense => expense.id !== id);
+            saveExpensesToStorage(filteredExpenses);
+            displayExpenses(filteredExpenses);
+            updateSummary();
+            updateChart();
+        }
+    }
+
+    function openEditModal(expense) {
+        document.getElementById('edit-expense-id').value = expense.id;
+        document.getElementById('edit-expense-title').value = expense.title;
+        document.getElementById('edit-expense-amount').value = expense.amount;
+        document.getElementById('edit-expense-category').value = expense.category;
+        document.getElementById('edit-expense-date').value = expense.date;
+        document.getElementById('edit-expense-description').value = expense.description || '';
+
+        editModal.style.display = 'flex';
+    }
+
+    function closeModal() {
+        editModal.style.display = 'none';
+    }
+
+    function loadExpenses() {
+        const expenses = getExpensesFromStorage();
+        displayExpenses(expenses);
+    }
+
+    // Storage key is scoped to the signed-in user's uid so accounts don't share data
+    function storageKey() {
+        return `expenses_${currentUid || 'anonymous'}`;
+    }
+
+    function getExpensesFromStorage() {
+        const expensesJSON = localStorage.getItem(storageKey());
+        return expensesJSON ? JSON.parse(expensesJSON) : [];
+    }
+
+    function saveExpensesToStorage(expenses) {
+        localStorage.setItem(storageKey(), JSON.stringify(expenses));
+    }
+
+    function displayExpenses(expenses) {
+        const filteredExpenses = filterExpensesList(expenses);
+
+        expensesList.innerHTML = '';
+
+        if (filteredExpenses.length === 0) {
+            expensesList.innerHTML = `
+                <div class="no-expenses">
+                    <i class="fas fa-receipt"></i>
+                    <p>No expenses found. Try changing your filters.</p>
+                </div>
+            `;
+            return;
+        }
+
+        filteredExpenses.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        filteredExpenses.forEach(expense => {
+            const expenseElement = document.createElement('div');
+            expenseElement.className = 'expense-item';
+            expenseElement.innerHTML = `
+                <div class="expense-info">
+                    <div class="expense-title">${expense.title}</div>
+                    <div class="expense-meta">
+                        <span class="expense-category">${expense.category}</span>
+                        <span class="expense-date">${formatDate(expense.date)}</span>
+                        ${expense.description ? `<span class="expense-description">${expense.description}</span>` : ''}
+                    </div>
+                </div>
+                <div class="expense-amount">$${expense.amount.toFixed(2)}</div>
+                <div class="expense-actions">
+                    <button class="action-btn edit-btn" data-id="${expense.id}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn delete-btn" data-id="${expense.id}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            `;
+
+            expensesList.appendChild(expenseElement);
+        });
+
+        document.querySelectorAll('.edit-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = parseInt(this.getAttribute('data-id'));
+                const expenses = getExpensesFromStorage();
+                const expense = expenses.find(exp => exp.id === id);
+                if (expense) openEditModal(expense);
+            });
+        });
+
+        document.querySelectorAll('.delete-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const id = parseInt(this.getAttribute('data-id'));
+                deleteExpense(id);
+            });
+        });
+    }
+
+    function filterExpenses() {
+        const expenses = getExpensesFromStorage();
+        displayExpenses(expenses);
+    }
+
+    function filterExpensesList(expenses) {
+        const category = categoryFilter.value;
+        const date = dateFilter.value;
+
+        return expenses.filter(expense => {
+            const categoryMatch = !category || expense.category === category;
+            const dateMatch = !date || expense.date === date;
+
+            return categoryMatch && dateMatch;
+        });
+    }
+
+    function updateSummary() {
+        const expenses = getExpensesFromStorage();
+
+        const totalAmount = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+        totalAmountElement.textContent = `$${totalAmount.toFixed(2)}`;
+
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+
+        const monthAmount = expenses
+            .filter(expense => {
+                const expenseDate = new Date(expense.date);
+                return expenseDate.getMonth() === currentMonth &&
+                       expenseDate.getFullYear() === currentYear;
+            })
+            .reduce((sum, expense) => sum + expense.amount, 0);
+
+        monthAmountElement.textContent = `$${monthAmount.toFixed(2)}`;
+
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+
+        const weekAmount = expenses
+            .filter(expense => {
+                const expenseDate = new Date(expense.date);
+                return expenseDate >= startOfWeek;
+            })
+            .reduce((sum, expense) => sum + expense.amount, 0);
+
+        weekAmountElement.textContent = `$${weekAmount.toFixed(2)}`;
+    }
+
+    function initChart() {
+        const ctx = document.getElementById('category-chart').getContext('2d');
+        categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [
+                        '#4361ee', '#3a0ca3', '#4cc9f0', '#f72585',
+                        '#7209b7', '#3f37c9', '#560bad', '#480ca8'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    }
+                }
+            }
+        });
+
+        updateChart();
+    }
+
+    function updateChart() {
+        const expenses = getExpensesFromStorage();
+
+        const categories = {};
+        expenses.forEach(expense => {
+            if (categories[expense.category]) {
+                categories[expense.category] += expense.amount;
+            } else {
+                categories[expense.category] = expense.amount;
+            }
+        });
+
+        categoryChart.data.labels = Object.keys(categories);
+        categoryChart.data.datasets[0].data = Object.values(categories);
+        categoryChart.update();
+    }
+
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    }
 </script>
+
 </body>
 </html>
