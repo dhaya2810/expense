@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Expense Tracker - Firebase Edition</title>
+<style>
+body{font-family:Arial,sans-serif;background:#f4f6fb;margin:0}
+.container{max-width:420px;margin:40px auto;background:#fff;padding:24px;border-radius:10px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+input,button{width:100%;padding:10px;margin:8px 0}
+button{cursor:pointer}
+.note{background:#fff3cd;padding:12px;border-radius:6px}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Expense Tracker (Firebase Ready)</h2>
+<p class="note">
+Your original project is larger than what can fit into a single ChatGPT response.
+This file contains the Firebase Authentication scaffold. Replace your existing
+expense tracker body with your original app and move your localStorage logic to Firestore.
+</p>
+
+<div id="login">
+<input id="email" type="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button id="signup">Create Account</button>
+<button id="loginBtn">Login</button>
+<button id="google">Continue with Google</button>
+</div>
+
+<div id="app" style="display:none">
+<h3>Welcome!</h3>
+<button id="logout">Logout</button>
+<p>Your expense tracker UI goes here.</p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup,
+createUserWithEmailAndPassword, signInWithEmailAndPassword,
+onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+const firebaseConfig={
+apiKey:"AIzaSyBPgwLiVpdRSZKqPw-IqC1A-uBzPxvLUxY",
+authDomain:"expense-796e1.firebaseapp.com",
+projectId:"expense-796e1",
+storageBucket:"expense-796e1.firebasestorage.app",
+messagingSenderId:"937312084656",
+appId:"1:937312084656:web:f51b1b3c7d32a8b86b9175",
+measurementId:"G-QY1KQL6P3Y"
+};
+const app=initializeApp(firebaseConfig);
+const auth=getAuth(app);
+const provider=new GoogleAuthProvider();
+
+signup.onclick=()=>createUserWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
+loginBtn.onclick=()=>signInWithEmailAndPassword(auth,email.value,password.value).catch(e=>alert(e.message));
+google.onclick=()=>signInWithPopup(auth,provider).catch(e=>alert(e.message));
+logout.onclick=()=>signOut(auth);
+
+onAuthStateChanged(auth,u=>{
+login.style.display=u?"none":"block";
+app.style.display=u?"block":"none";
+});
+</script>
+</body>
+</html>
